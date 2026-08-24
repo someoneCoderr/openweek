@@ -52,12 +52,17 @@ export default defineNuxtConfig({
       htmlAttrs: { lang: 'en' },
       title: 'Openweek',
       link: [
-        // SVG first: it carries a prefers-color-scheme rule so the quiet bars stay legible
-        // on a dark tab strip. The .ico is the fallback for browsers that ignore SVG icons,
-        // and holds hand-pixelled 16/32/48 frames rather than one downscaled image.
+        // Four icons because four kinds of consumer read them, and each ignores the others:
+        // SVG for browsers that take it (it carries the dark-chrome swap), .ico for the ones
+        // that don't — 16/32/48 frames drawn on their own pixel grid, 32-bit so no consumer
+        // renders the alpha as a black box — a PNG for anything that reads neither, and the
+        // 180px apple-touch for iOS, which composites transparency to black so it is opaque.
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
         { rel: 'icon', type: 'image/x-icon', sizes: '48x48 32x32 16x16', href: '/favicon.ico' },
+        { rel: 'icon', type: 'image/png', sizes: '96x96', href: '/favicon-96x96.png' },
         { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+        // Android reads neither of the above for a home-screen icon — it wants the manifest.
+        { rel: 'manifest', href: '/site.webmanifest' },
       ],
     },
   },

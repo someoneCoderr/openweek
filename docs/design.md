@@ -86,10 +86,15 @@ look — a coloured dot and no checkbox — under either mode.
 Ten frames, mirrored by the components:
 
 - **`BrandMark`** — five bars of falling height, a week at a glance. The favicon set in `public/` is the
-  same mark: `favicon.svg` (with a `prefers-color-scheme` rule, so the two quiet "days left" bars follow the
-  browser chrome instead of the app theme), `favicon.ico` carrying hand-pixelled 16/32/48 frames rather than
-  one downscaled image, and a 180px `apple-touch-icon.png` on paper white. The geometry sits on the pixel
-  grid — 4-wide bars, 2-wide gaps, 2 of padding — which is what keeps it crisp at 16px.
+  same mark, drawn on the pixel grid (4-wide bars, 2-wide gaps, 2 of padding), which is what keeps it crisp
+  at 16px. It is a *set* because each kind of consumer ignores the others' formats:
+  `favicon.svg` (browsers that take SVG; carries a `prefers-color-scheme` rule so the two quiet "days left"
+  bars follow the browser chrome rather than the app theme — **every bar also carries a literal `fill`, since
+  a renderer that skips the style block would otherwise paint them black**), `favicon.ico` (**32-bit** frames
+  at 16/32/48, each drawn on its own grid; a palettised ICO renders its alpha as a black box on some
+  consumers), `favicon-96x96.png` for anything that reads neither, `apple-touch-icon.png` at 180px on paper
+  white because iOS composites transparency to black, and `site.webmanifest` with 192/512 icons, which is the
+  only one Android reads for a home-screen icon.
 - **`TopBar`** — `BrandMark` (five falling bars) · week nav · range + `W{n}` · progress bar and
   "X of Y done" · a split control holding the **Weekends** and **Lists** toggles ·
   `CalendarsMenu` · `SearchBox` · `AccountMenu`.
