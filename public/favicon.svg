@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Openweek">
+  <title>Openweek</title>
+  <!-- The BrandMark's five falling bars — a week at a glance — squared off for an icon.
+       Geometry sits on the pixel grid (4-wide bars, 2-wide gaps, 2 of padding: 5x4 + 4x2 + 4
+       = 32) so it stays crisp when a browser renders it down to 16px.
+
+       The last two bars are the quiet "days left" pair. They follow the browser chrome
+       rather than the app's theme: the app's light grey would all but vanish against a dark
+       tab strip, which is where a favicon spends its life. -->
+  <style>
+    .quiet { fill: #D4D6DA }
+    .accent { fill: #1A69BC }
+    @media (prefers-color-scheme: dark) {
+      .quiet { fill: #626873 }
+      .accent { fill: #62A1ED }
+    }
+  </style>
+  <rect class="accent" x="2"  y="2"  width="4" height="28" rx="1"/>
+  <rect fill="#E28D4F" x="8"  y="12" width="4" height="18" rx="1"/>
+  <rect fill="#249C74" x="14" y="6"  width="4" height="24" rx="1"/>
+  <rect class="quiet"  x="20" y="16" width="4" height="14" rx="1"/>
+  <rect class="quiet"  x="26" y="10" width="4" height="20" rx="1"/>
+</svg>

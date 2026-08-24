@@ -51,6 +51,14 @@ export default defineNuxtConfig({
       // data-theme / data-accent are set in app.vue from the user's settings.
       htmlAttrs: { lang: 'en' },
       title: 'Openweek',
+      link: [
+        // SVG first: it carries a prefers-color-scheme rule so the quiet bars stay legible
+        // on a dark tab strip. The .ico is the fallback for browsers that ignore SVG icons,
+        // and holds hand-pixelled 16/32/48 frames rather than one downscaled image.
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'icon', type: 'image/x-icon', sizes: '48x48 32x32 16x16', href: '/favicon.ico' },
+        { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
+      ],
     },
   },
 })

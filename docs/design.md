@@ -85,6 +85,11 @@ look — a coloured dot and no checkbox — under either mode.
 
 Ten frames, mirrored by the components:
 
+- **`BrandMark`** — five bars of falling height, a week at a glance. The favicon set in `public/` is the
+  same mark: `favicon.svg` (with a `prefers-color-scheme` rule, so the two quiet "days left" bars follow the
+  browser chrome instead of the app theme), `favicon.ico` carrying hand-pixelled 16/32/48 frames rather than
+  one downscaled image, and a 180px `apple-touch-icon.png` on paper white. The geometry sits on the pixel
+  grid — 4-wide bars, 2-wide gaps, 2 of padding — which is what keeps it crisp at 16px.
 - **`TopBar`** — `BrandMark` (five falling bars) · week nav · range + `W{n}` · progress bar and
   "X of Y done" · a split control holding the **Weekends** and **Lists** toggles ·
   `CalendarsMenu` · `SearchBox` · `AccountMenu`.
