@@ -40,6 +40,13 @@ First run: `nvm use` (or `fnm use`), `cp .env.example .env`, then `pnpm db:up &&
 
 Before any PR: `pnpm lint && pnpm typecheck && pnpm test` must be green.
 
+**Always pull before you commit and push.** `main` moves under you — work happens in parallel
+workspaces and in a second checkout — so `git fetch origin` first and read *both* directions
+(`origin/main..HEAD` is yours, `HEAD..origin/main` is theirs; label them, they are easy to
+confuse). If `origin/main` is ahead: commit, `git rebase origin/main`, re-run the gates on the
+combined tree (plus `pnpm db:migrate` if migrations arrived), then push. If an incoming commit
+rewrote something you wrote, leave theirs standing and say so — theirs is the newer decision.
+
 ## Structure (Nuxt 4 three-root)
 - `app/` — Vue front-end (`pages/`, `components/`, `stores/` Pinia, `composables/`, `middleware/`, `assets/css/`)
 - `server/` — Nitro (`api/`, `database/{client,schema,migrations}`, `utils/{auth,config,crypto}`, `services/`, `tasks/`)
