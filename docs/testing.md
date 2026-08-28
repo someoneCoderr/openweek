@@ -62,7 +62,8 @@ owner-scoping across users), and the **first-user-becomes-admin** hook.
 ### End-to-end (Playwright — `e2e/basic.spec.ts`, run against `pnpm db:seed` data)
 In place: sign-in lands on the week grid; adding a task to a day; focusing a day widens its column; **ticking a
 task** draws the strike-through *before* the row folds away; the **lists rail** resizes from its grip and hides
-when dragged to the floor; and the week **catches up when the day turns over** under an open tab.
+when dragged to the floor; the week **catches up when the day turns over** under an open tab; and **"Keep
+all"** on the rollover review survives a reload and returns the next morning.
 
 Three things to know when writing more. The mobile day view is in the DOM alongside the grid (just hidden), so
 an unscoped locator matches today's rows twice — scope to `[style*="grid-template-columns"]`. A created row is

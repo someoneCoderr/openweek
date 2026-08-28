@@ -21,6 +21,7 @@ describe('drizzle-zod contract', () => {
     showCalendarEvents: true,
     hideConvertedEvents: true,
     rolloverEnabled: false,
+    rolloverReviewedOn: '2026-08-19',
     timezone: 'UTC',
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -40,5 +41,10 @@ describe('drizzle-zod contract', () => {
 
   it('rejects colours from the pre-rework palette', () => {
     expect(settingsSchema.safeParse({ ...row, accentColor: '#CBDDE9' }).success).toBe(false)
+  })
+
+  it('takes a never-answered rollover review, but not a half-written date', () => {
+    expect(settingsSchema.safeParse({ ...row, rolloverReviewedOn: null }).success).toBe(true)
+    expect(settingsSchema.safeParse({ ...row, rolloverReviewedOn: '2026-8-9' }).success).toBe(false)
   })
 })

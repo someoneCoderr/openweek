@@ -41,6 +41,7 @@ The Postgres schema, its constraints, and the ordering/identity conventions. App
 | `showCalendarEvents` | boolean | default `true`. |
 | `hideConvertedEvents` | boolean | default `true`; an event that became a task steps out of the grid, so the same meeting is not listed twice. Deleting the task brings it back. |
 | `rolloverEnabled` | boolean | default `false` (opt-in). |
+| `rolloverReviewedOn` | date? | the day "Keep all" was last pressed on the rollover review; null = never. |
 | `timezone` | text | IANA tz, set in Appearance. Used by rollover, event placement, and the day a completion counts on in Stats. Defaults to `UTC`. |
 
 ### `list` — the non-day buckets ("Someday", "Work", …)
@@ -130,6 +131,11 @@ When `rolloverEnabled`, open tasks with `date < today` move to today: set `date 
 (first move only), re-`position` at the end of today. The **authoritative** path is a **lazy, idempotent**
 server pass when a week containing today is loaded; a daily Nitro task (per-user `timezone`) is a belt-and-
 braces backstop. Events never roll over.
+
+The **review banner** lists what moved and offers to send each task back. It is shown while
+`rolloverReviewedOn <> today` and something is currently rolled in, so "Keep all" is answered once a morning
+rather than once a page load — the dismissal is on the account, it survives a reload and reaches the other
+devices, and tomorrow's rollover (a genuinely new set of moves) brings it back on its own.
 
 ## Entity sketch
 

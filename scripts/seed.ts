@@ -130,6 +130,9 @@ async function main() {
     showWeekends: true,
     collapseDone: true,
     rolloverEnabled: true,
+    // Cleared, or a demo account that pressed "Keep all" today would re-seed without the
+    // review banner the seeded data exists to show.
+    rolloverReviewedOn: null,
     showCalendarEvents: true,
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
   }).where(eq(userSettings.userId, userId))

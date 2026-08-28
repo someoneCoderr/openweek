@@ -32,8 +32,6 @@ export const useWeekStore = defineStore('week', () => {
   /** Ephemeral view state — which day is focused, and which "N done" folds are open. */
   const focusDate = ref<string | null>(null)
   const doneOpen = ref<Record<string, boolean>>({})
-  /** Dismissal of the rollover review banner, for this session. */
-  const rolloverReviewed = ref(false)
   /** The task currently being dragged, so every container can show a drop line. */
   const draggingId = ref<string | null>(null)
   /** Just-ticked tasks, kept in their column while the strike-through plays. */
@@ -327,7 +325,7 @@ export const useWeekStore = defineStore('week', () => {
 
   return {
     weekStart, days, lists, loading,
-    focusDate, doneOpen, rolloverReviewed, draggingId, settling,
+    focusDate, doneOpen, draggingId, settling,
     doneCount, totalCount, weekEmpty, doneLabel, rolledIn,
     isFoldOpen, toggleFold, toggleFocus, isPastContainer, isSettling,
     loadWeek, find, containerOf, bucketFor, createTask,

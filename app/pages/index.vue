@@ -45,9 +45,9 @@ const goToday = () => go(startOfWeekStr(today.value, weekStartsOn.value))
  * they walked away stays where they left off.
  */
 watch(today, (now, before) => {
+  // The rollover banner needs no resetting here: it is keyed on the day it was answered, so
+  // a new day brings it back by itself.
   const wasCurrent = currentStart.value === startOfWeekStr(before, weekStartsOn.value)
-  // Yesterday's banner was dismissed about yesterday's rollover; this morning's is new.
-  week.rolloverReviewed = false
   return go(wasCurrent ? startOfWeekStr(now, weekStartsOn.value) : currentStart.value)
 })
 

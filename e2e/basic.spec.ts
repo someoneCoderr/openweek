@@ -179,3 +179,36 @@ test('the week catches up when the day turns over under an open tab', async ({ p
   const expected = later.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
   await expect.poll(markedDay).toContain(expected)
 })
+
+test('"Keep all" on the rollover review survives a reload', async ({ page }) => {
+  await signIn(page)
+
+  // A fresh start: the account may have answered the review in an earlier run.
+  expect((await page.request.patch('/api/me/settings', {
+    data: { rolloverEnabled: true, rolloverReviewedOn: null },
+  })).ok()).toBeTruthy()
+  await page.reload()
+  await expect(dayHeader(page).first()).toBeVisible({ timeout: 20_000 })
+  // Server-rendered markup is visible before Vue attaches; without this the click below
+  // lands on inert HTML.
+  await page.waitForLoadState('networkidle')
+
+  const banner = page.getByText(/tasks? moved to today$/)
+  await expect(banner).toBeVisible()
+
+  const saved = page.waitForResponse(r => r.url().endsWith('/api/me/settings') && r.request().method() === 'PATCH')
+  await page.getByRole('button', { name: 'Keep all' }).click()
+  await expect(banner).toBeHidden()
+  await saved
+
+  // The bug: it came back on every reload, because the dismissal only lived in the store.
+  await page.reload()
+  await expect(dayHeader(page).first()).toBeVisible({ timeout: 20_000 })
+  await page.waitForLoadState('networkidle')
+  await expect(banner).toBeHidden()
+
+  // Tomorrow's rollover is a new set of moves, so the review is offered again.
+  await page.clock.setFixedTime(new Date(Date.now() + 86_400_000))
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+  await expect(banner).toBeVisible()
+})

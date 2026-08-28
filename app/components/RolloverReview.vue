@@ -3,16 +3,20 @@ import { format, parseISO } from 'date-fns'
 
 const week = useWeekStore()
 const settings = useSettingsStore()
+const today = useToday()
 
 /**
- * Only offered on the current week, and only until dismissed — rollover already moved the
- * tasks, this is the chance to undo it before the day gets going.
+ * Only offered on the current week, and only until it has been answered today — rollover
+ * already moved the tasks, this is the chance to undo it before the day gets going.
+ *
+ * Answered *today*, not answered in this tab: the dismissal is stored on the account, so it
+ * survives a reload and reaches the other devices, and tomorrow's rollover — a genuinely new
+ * set of moves — brings the banner back on its own.
  */
-const show = computed(() =>
-  (settings.settings?.rolloverEnabled ?? false)
-  && !week.rolloverReviewed
-  && week.rolledIn.length > 0,
-)
+const show = computed(() => {
+  const s = settings.settings
+  return !!s?.rolloverEnabled && s.rolloverReviewedOn !== today.value && week.rolledIn.length > 0
+})
 
 const title = computed(() => {
   const n = week.rolledIn.length
@@ -52,7 +56,7 @@ function fromLabel(originalDate: string) {
       </span>
     </div>
 
-    <OwButton size="sm" @click="week.rolloverReviewed = true">
+    <OwButton size="sm" @click="settings.update({ rolloverReviewedOn: today })">
       Keep all
     </OwButton>
   </div>

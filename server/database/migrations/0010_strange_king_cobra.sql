@@ -1,0 +1,1 @@
+ALTER TABLE "user_settings" ADD COLUMN "rollover_reviewed_on" date;

@@ -62,6 +62,10 @@ export const userSettings = pgTable('user_settings', {
   // Once an event has become a task, showing both is the same meeting twice.
   hideConvertedEvents: boolean('hide_converted_events').notNull().default(true),
   rolloverEnabled: boolean('rollover_enabled').notNull().default(false),
+  // The day the rollover review was last answered ("Keep all"). Rollover happens once a
+  // morning, so the review is answered once a morning: null, or any day before today, and
+  // it is offered again. Without it the banner came back on every reload.
+  rolloverReviewedOn: date('rollover_reviewed_on', { mode: 'string' }),
   timezone: text('timezone').notNull().default('UTC'),
   ...timestamps,
 })

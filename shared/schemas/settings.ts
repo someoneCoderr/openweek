@@ -31,6 +31,12 @@ export const settingsSchema = z.object({
   showCalendarEvents: z.boolean(),
   hideConvertedEvents: z.boolean(),
   rolloverEnabled: z.boolean(),
+  /**
+   * The day "Keep all" was last pressed on the rollover review, or null. Rollover runs once
+   * a morning, so the review is answered once a morning — dismissing it has to outlive a
+   * reload, and has to come back tomorrow when there is a fresh set of moves to look at.
+   */
+  rolloverReviewedOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD').nullable(),
   timezone: z.string().min(1),
 })
 
