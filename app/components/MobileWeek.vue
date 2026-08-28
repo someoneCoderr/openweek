@@ -2,7 +2,7 @@
 import { format, parseISO } from 'date-fns'
 import type { CalendarEventDto } from '~~/shared/schemas/calendar'
 import type { Task } from '~~/shared/schemas/task'
-import { isPastDate, todayStr } from '~~/shared/utils/week'
+import { isPastDate } from '~~/shared/utils/week'
 
 const props = defineProps<{ rangeLabel: string, weekNumber: number }>()
 const emit = defineEmits<{
@@ -16,14 +16,20 @@ const week = useWeekStore()
 const cals = useCalendarsStore()
 const settings = useSettingsStore()
 
-const today = todayStr()
+const today = useToday()
 
 const selectedDate = ref<string | null>(null)
 
-/** Default to today when it is in view, otherwise the first day of the week. */
-const activeDate = computed(() =>
-  selectedDate.value ?? (week.days.some(d => d.date === today) ? today : week.days[0]?.date ?? ''),
-)
+/**
+ * Default to today when it is in view, otherwise the first day of the week. A selection the
+ * loaded week no longer contains — paged to another week, or the date turned over overnight —
+ * falls back the same way, rather than leaving the day panel with nothing to render.
+ */
+const activeDate = computed(() => {
+  const days = week.days
+  if (selectedDate.value && days.some(d => d.date === selectedDate.value)) return selectedDate.value
+  return days.some(d => d.date === today.value) ? today.value : days[0]?.date ?? ''
+})
 const activeDay = computed(() => week.days.find(d => d.date === activeDate.value))
 const container = computed(() => ({ date: activeDate.value }))
 
@@ -32,14 +38,14 @@ const visibleEvents = computed(() => cals.visibleEvents(activeDay.value?.events 
 const dayLabel = computed(() => {
   if (!activeDay.value) return ''
   const name = format(parseISO(activeDay.value.date), 'EEEE').toUpperCase()
-  return activeDay.value.date === today ? `${name} · TODAY` : `${name} ${format(parseISO(activeDay.value.date), 'd')}`
+  return activeDay.value.date === today.value ? `${name} · TODAY` : `${name} ${format(parseISO(activeDay.value.date), 'd')}`
 })
 const shortLabel = computed(() =>
   activeDay.value ? format(parseISO(activeDay.value.date), 'EEE') : '',
 )
 const openCount = computed(() => activeDay.value?.tasks.filter(t => !t.completedAt).length ?? 0)
 /** Days that have gone take no new tasks — same rule as the grid's columns. */
-const isPast = computed(() => isPastDate(activeDate.value, today))
+const isPast = computed(() => isPastDate(activeDate.value, today.value))
 
 /** One row object per day. Built as a computed because the template reads six fields
  *  per button — calling a function per field re-parsed the date and rescanned the week. */
@@ -50,7 +56,7 @@ const strips = computed(() => week.days.map((d) => {
     letter: format(parsed, 'EEEEE'),
     num: format(parsed, 'd'),
     label: format(parsed, 'EEEE d MMMM'),
-    isToday: d.date === today,
+    isToday: d.date === today.value,
     isActive: d.date === activeDate.value,
     hasOpen: d.tasks.some(t => !t.completedAt),
   }

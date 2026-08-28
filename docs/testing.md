@@ -9,8 +9,9 @@ integration layer against a real Postgres, all gated in CI.
 ### Unit (pure logic — the highest-value tests)
 - **Ordering** — `generateKeyBetween` between two keys, at both edges, and jitter behavior; the `(position, id)`
   sort stays stable under concurrent same-slot inserts.
-- **Week/date math** — `useWeek` boundaries across timezones and **DST transitions** (`date-fns-tz`); Monday vs
-  Sunday week starts.
+- **Week/date math** — week boundaries across timezones and **DST transitions**; Monday vs Sunday week starts.
+  Including `todayInTz` / `msUntilNextDay` (`shared/utils/week.test.ts`), which take an explicit `now` so the
+  turn of the day is testable: the countdown must land *on* the change of date, not a moment either side.
 - **Rollover** — overdue-open tasks move to today, `originalDate` is preserved, and re-running is idempotent.
 - **Recurrence expansion** — `ical.js` against ICS fixtures exercising **EXDATE**, **RECURRENCE-ID** overrides,
   **RDATE**, and **VTIMEZONE**.
@@ -61,11 +62,14 @@ owner-scoping across users), and the **first-user-becomes-admin** hook.
 ### End-to-end (Playwright — `e2e/basic.spec.ts`, run against `pnpm db:seed` data)
 In place: sign-in lands on the week grid; adding a task to a day; focusing a day widens its column; **ticking a
 task** draws the strike-through *before* the row folds away; the **lists rail** resizes from its grip and hides
-when dragged to the floor.
+when dragged to the floor; and the week **catches up when the day turns over** under an open tab.
 
-Two things to know when writing more: the mobile day view is in the DOM alongside the grid (just hidden), so an
-unscoped locator matches today's rows twice — scope to `[style*="grid-template-columns"]`. And a created row is
-optimistic, so wait for the `POST /api/tasks` response before acting on it.
+Three things to know when writing more. The mobile day view is in the DOM alongside the grid (just hidden), so
+an unscoped locator matches today's rows twice — scope to `[style*="grid-template-columns"]`. A created row is
+optimistic, so wait for the `POST /api/tasks` response before acting on it. And to move the clock, use
+`page.clock.setFixedTime()` plus a dispatched `visibilitychange` rather than `clock.install()`: it fakes `Date`
+without pausing timers, and it is the path that actually happens — the machine slept through midnight and the
+tab is simply looked at again.
 
 Still to cover: DnD reorder within a day and **move across days** with **both mouse and keyboard**; connect a
 public iCal feed and see events land; convert an event to a task.

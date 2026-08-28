@@ -56,12 +56,15 @@ onMounted(() => {
       week.draggingId = null
     },
   })
-  // A row on a day that has gone still drags out, but nothing drops onto it — the whole
-  // column is closed to new tasks.
-  const stopDrop = week.isPastContainer(props.container)
-    ? () => {}
-    : taskDropTarget(row.value, props.task.id, props.container, e => (edge.value = e))
-  onUnmounted(() => { stopDrag(); stopDrop() })
+  onUnmounted(stopDrag)
+})
+
+// A row on a day that has gone still drags out, but nothing drops onto it — the whole column
+// is closed to new tasks. Re-registered when the date turns over, which is the moment a row
+// that took drops all evening stops being allowed to.
+watchPostEffect((onCleanup) => {
+  if (!row.value || week.isPastContainer(props.container)) return
+  onCleanup(taskDropTarget(row.value, props.task.id, props.container, e => (edge.value = e)))
 })
 </script>
 

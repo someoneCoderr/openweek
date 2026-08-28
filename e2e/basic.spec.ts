@@ -152,3 +152,30 @@ test('the lists rail resizes, and hides when dragged to the floor', async ({ pag
   await expect(rail).toBeVisible()
   await expect.poll(height).toBe(dragged)
 })
+
+test('the week catches up when the day turns over under an open tab', async ({ page }) => {
+  await signIn(page)
+
+  const grid = page.locator('[style*="grid-template-columns"]')
+  const headers = grid.getByRole('button', { name: /focus this day$/ })
+  /** The accessible name of the column wearing the TODAY badge — "Friday 28 August — …". */
+  const markedDay = () => headers.filter({ hasText: 'TODAY' }).first().getAttribute('aria-label')
+
+  const before = await markedDay()
+  expect(before).toBeTruthy()
+
+  // Three days on at the same wall-clock time: a tab left open over a long weekend, which is
+  // also a week later than the one on screen. Only Date is faked, so the app's own timers go
+  // on running against the real clock — deliberately, because this is the path that actually
+  // happens: the machine slept through midnight and the tab is simply looked at again.
+  const later = new Date(Date.now() + 3 * 86_400_000)
+  await page.clock.setFixedTime(later)
+
+  const reloaded = page.waitForResponse(r => r.url().includes('/api/week'))
+  await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')))
+  await reloaded
+
+  // The seed gives the account this machine's timezone, so its idea of the day is ours.
+  const expected = later.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })
+  await expect.poll(markedDay).toContain(expected)
+})

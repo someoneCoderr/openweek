@@ -2,7 +2,7 @@
 import { format, parseISO } from 'date-fns'
 import type { CalendarEventDto } from '~~/shared/schemas/calendar'
 import type { Task } from '~~/shared/schemas/task'
-import { isPastDate, todayStr } from '~~/shared/utils/week'
+import { isPastDate } from '~~/shared/utils/week'
 
 const props = defineProps<{
   date: string
@@ -14,6 +14,7 @@ const props = defineProps<{
 const emit = defineEmits<{ openTask: [Task, DOMRect], convert: [CalendarEventDto] }>()
 
 const week = useWeekStore()
+const today = useToday()
 
 const col = ref<HTMLElement | null>(null)
 const container = computed(() => ({ date: props.date }))
@@ -27,17 +28,17 @@ const fullDate = computed(() => format(parseISO(props.date), 'EEEE d MMMM'))
 const isFocused = computed(() => week.focusDate === props.date)
 const openLeft = computed(() => props.tasks.filter(t => !t.completedAt).length)
 /** A day that has gone takes no new tasks: no composer, and nothing can be dropped into it. */
-const isPast = computed(() => isPastDate(props.date, todayStr()))
+const isPast = computed(() => isPastDate(props.date, today.value))
 
 // Destructured so the refs unwrap in the template.
 const { visibleTasks, hasFold, isOpen: foldOpen, label: foldLabel, toggle: toggleFold }
   = useDoneFold(container, () => props.tasks)
 
-onMounted(() => {
-  if (col.value && !isPast.value) {
-    const stop = containerDropTarget(col.value, container.value, a => (dropAtEnd.value = a))
-    onUnmounted(stop)
-  }
+// Re-registered rather than wired up once: today's column becomes a past one when the date
+// turns over, and a past day takes no drops.
+watchPostEffect((onCleanup) => {
+  if (!col.value || isPast.value) return
+  onCleanup(containerDropTarget(col.value, container.value, a => (dropAtEnd.value = a)))
 })
 </script>
 

@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import type { CalendarEventDto } from '~~/shared/schemas/calendar'
 import { PROVIDER_LABELS, inkColor } from '~~/shared/constants/colors'
-import { isPastDate, todayStr } from '~~/shared/utils/week'
+import { isPastDate } from '~~/shared/utils/week'
 
 const props = defineProps<{ event: CalendarEventDto }>()
 const emit = defineEmits<{ convert: [CalendarEventDto] }>()
 
+const today = useToday()
 // The sync window reaches a week back, and the task an event becomes carries its date —
 // which cannot be in the past. So last week's events are shown but not convertible.
-const convertible = computed(() => !isPastDate(props.event.localDate, todayStr()))
+const convertible = computed(() => !isPastDate(props.event.localDate, today.value))
 
 </script>
 

@@ -28,9 +28,9 @@ app/                      # front-end (srcDir)
   components/             # TopBar, WeekGrid, DayColumn, TaskItem, EventItem,
                           #   TaskDetailPopover, ListsRail/ListCard, CalendarsMenu, RolloverReview, primitives
   stores/                 # Pinia: useWeekStore (optimistic), useUiStore, useSettingsStore
-  composables/            # useTaskBoard (DnD), useWeek (date math), useAuthClient, useTheme
+  composables/            # useTaskBoard (DnD), useToday (the shared clock), useAuthClient, useTheme
   middleware/             # auth.global.ts — guard + first-run redirect
-  plugins/                # theme init, DnD auto-scroll registration
+  plugins/                # theme init, the day clock, DnD auto-scroll registration
   assets/css/             # Tailwind v4 entry + token layer (CSS variables)
 server/                   # Nitro back-end
   api/                    # week.get, tasks/*, lists/*, calendars/*, events/[id]/convert, me/settings, search
@@ -66,6 +66,13 @@ Root: `drizzle.config.ts`, `Dockerfile`, `docker-compose.yml`, `.env.example`, `
   the store computes `generateKeyBetween(prev, next)` (`fractional-indexing-jittered`) and persists; lists are
   always sorted `(position, id)` where `id` is a uuidv7 (time-sortable tiebreaker, so concurrent inserts never
   truly collide). See [data-model.md](./data-model.md).
+- **One clock.** "Today" is a single piece of Nuxt state (`useToday()`), turned over by
+  `plugins/today.client.ts` on a timer set for the next midnight *and* whenever the tab is shown or focused —
+  a machine that slept through midnight never runs the timer on time. Everything date-dependent reads it: the
+  TODAY marker, "no planning into the past" (`isPastContainer`, the composers, the drop targets), which week
+  `Today` lands on, and the Stats figures. When it turns, the week refetches, so the tasks rollover moved on
+  the server are on screen. Midnight is the **account's** midnight (Settings → Timezone), the same clock the
+  server rolls over and buckets completions on. See D11 in [decisions.md](./decisions.md).
 - **No realtime in v1.** Multi-device convergence relies on uuidv7 + jitter and a refetch-on-window-focus; a
   websocket/live layer is an additive later concern.
 

@@ -33,5 +33,22 @@ export const useStatsStore = defineStore('stats', () => {
     summary.value = await apiFetch<StatsSummary>('/api/stats?range=4w&scope=summary')
   }
 
+  /**
+   * Both payloads are answers about a particular day — the current streak, the trailing four
+   * weeks, a year of ticks ending today. Left open past midnight they are quietly a day out,
+   * so whatever has been fetched is fetched again when the date turns over. A failure here
+   * leaves the last numbers up rather than taking the page down.
+   */
+  watch(useToday(), () => {
+    if (payload.value) {
+      load().catch(() => {})
+      return
+    }
+    if (summary.value) {
+      summary.value = null
+      loadSummary().catch(() => {})
+    }
+  })
+
   return { payload, summary, range, loading, load, loadSummary }
 })

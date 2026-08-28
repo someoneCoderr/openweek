@@ -7,7 +7,7 @@ import type { Container } from '~/composables/useTaskBoard'
 import { containerKey } from '~/composables/useTaskBoard'
 import { inkForIndex } from '~~/shared/constants/colors'
 import { TEMP_ID_PREFIX, isRolledOver } from '~~/shared/utils/task'
-import { isPastDate, todayStr } from '~~/shared/utils/week'
+import { isPastDate } from '~~/shared/utils/week'
 
 interface Day { date: string, tasks: Task[], events: CalendarEventDto[] }
 let tempCounter = 0
@@ -20,6 +20,10 @@ function prefersReducedMotion() {
 }
 
 export const useWeekStore = defineStore('week', () => {
+  // The shared clock, so the date rules below re-answer when the day turns rather than
+  // holding whatever it was when the tab was opened.
+  const today = useToday()
+
   const weekStart = ref('')
   const days = ref<Day[]>([])
   const lists = ref<ListWithTasks[]>([])
@@ -54,7 +58,7 @@ export const useWeekStore = defineStore('week', () => {
    * that stay reachable — "Move to…", and a drag that started before midnight.
    */
   function isPastContainer(c: Container) {
-    return 'date' in c && isPastDate(c.date, todayStr())
+    return 'date' in c && isPastDate(c.date, today.value)
   }
   /** …with the one exception the server also makes: sending a rolled-over task back. */
   function refusesPast(taskId: string, dest: Container) {

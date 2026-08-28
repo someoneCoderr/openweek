@@ -2,7 +2,6 @@
 import { isWeekend, parseISO } from 'date-fns'
 import type { CalendarEventDto } from '~~/shared/schemas/calendar'
 import type { Task } from '~~/shared/schemas/task'
-import { todayStr } from '~~/shared/utils/week'
 
 const emit = defineEmits<{ openTask: [Task, DOMRect], convert: [CalendarEventDto] }>()
 
@@ -10,7 +9,7 @@ const week = useWeekStore()
 const settings = useSettingsStore()
 const cals = useCalendarsStore()
 
-const today = todayStr()
+const today = useToday()
 
 /**
  * Cached per date rather than filtered in the binding: a fresh array on every render gives

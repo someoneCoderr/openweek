@@ -2,7 +2,7 @@
 import { addDays, format, getISOWeek, parseISO } from 'date-fns'
 import type { CalendarEventDto } from '~~/shared/schemas/calendar'
 import type { Task } from '~~/shared/schemas/task'
-import { addDaysStr, startOfWeekStr, todayStr } from '~~/shared/utils/week'
+import { addDaysStr, startOfWeekStr } from '~~/shared/utils/week'
 
 const week = useWeekStore()
 const settings = useSettingsStore()
@@ -17,7 +17,8 @@ await useAsyncData('settings', async () => {
 const weekStartsOn = computed(() => (settings.settings?.weekStartsOn ?? 1) as 0 | 1)
 const showLists = computed(() => settings.settings?.showLists ?? true)
 const showWeekStats = computed(() => settings.settings?.showWeekStats ?? true)
-const currentStart = ref(startOfWeekStr(todayStr(), weekStartsOn.value))
+const today = useToday()
+const currentStart = ref(startOfWeekStr(today.value, weekStartsOn.value))
 
 // The calendars come down with the week, not on mount: which calendars are switched off is
 // applied in the client, so without them the server-rendered week shows events from
@@ -34,7 +35,21 @@ async function go(start: string) {
 }
 const prev = () => go(addDaysStr(currentStart.value, -7))
 const next = () => go(addDaysStr(currentStart.value, 7))
-const goToday = () => go(startOfWeekStr(todayStr(), weekStartsOn.value))
+const goToday = () => go(startOfWeekStr(today.value, weekStartsOn.value))
+
+/**
+ * A tab left open past midnight used to be stuck on the day it was opened on. When the date
+ * turns over, refetch: rollover runs on the server as the week is read, so the tasks it moved
+ * are only on screen once the week comes down again. Following into the next week, though,
+ * only if the week on screen was the one that just ended — someone who paged forward before
+ * they walked away stays where they left off.
+ */
+watch(today, (now, before) => {
+  const wasCurrent = currentStart.value === startOfWeekStr(before, weekStartsOn.value)
+  // Yesterday's banner was dismissed about yesterday's rollover; this morning's is new.
+  week.rolloverReviewed = false
+  return go(wasCurrent ? startOfWeekStr(now, weekStartsOn.value) : currentStart.value)
+})
 
 const rangeLabel = computed(() => {
   const s = parseISO(week.weekStart || currentStart.value)

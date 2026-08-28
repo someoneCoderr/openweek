@@ -81,5 +81,21 @@ Known limits, recorded so nobody reads more into the numbers than is there: a **
 `original_date`, deleted tasks are gone (no `deletedAt`), un-ticking destroys `completed_at`, and the *number*
 of rollovers is unrecoverable — only days slipped.
 
+## D11 — One clock, and it is the account's
+"Today" is one reactive value (`useToday()`), not a `new Date()` read wherever a date rule needs one. *Why:* a
+planner is a tab people leave open. Read once at setup, every date rule froze on the day the tab was opened —
+the TODAY marker stayed on yesterday, yesterday still took drops and offered a composer, `Today` went to last
+week, and the tasks rollover had already moved were nowhere to be seen. The clock turns over on a timer set
+for the next midnight *and* on `visibilitychange`/`focus`, because a laptop that slept through midnight never
+runs the timer on time — and that is exactly the tab you come back to.
+
+It runs on the **account's** timezone (Settings → Timezone), not the browser's, which is what that setting has
+always claimed ("which clock decides when one day becomes the next") and what the server already uses for
+rollover, event dates and Stats. The browser's clock is only the fallback while settings are loading.
+
+When the date turns the week is refetched — rollover runs on the server as the week is read, so its work only
+appears once the week comes down again — and the grid follows into the new week *only* if the week on screen
+was the one that just ended. Someone who paged forward stays where they left off.
+
 ## Related docs
 [tech-stack.md](./tech-stack.md) · [architecture.md](./architecture.md) · [roadmap.md](./roadmap.md)
