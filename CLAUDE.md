@@ -66,6 +66,10 @@ rewrote something you wrote, leave theirs standing and say so — theirs is the 
   shares. It ticks at the *account's* midnight and when the tab comes back, so a tab left open overnight is
   right the next morning. See `docs/decisions.md` D11.
 - **DnD always has a keyboard path** — pair every drag with the "Move to…" menu.
+- **Register drag-and-drop from inside `onMounted`** — Nuxt strips `onMounted` from the server build, and
+  that is the only thing keeping `@atlaskit/pragmatic-*` out of the SSR bundle; its entry points are stub
+  directories Nitro's trace does not copy, so the *built* server 500s. Dev and a local `node .output` both
+  hide it. `pnpm build` runs `scripts/check-server-bundle.mjs` to catch it.
 - **Design tokens are CSS variables** (`--ow-*`); don't hard-code the hex values from `docs/design.md` in
   components — reference the tokens.
 - **Config fails fast** — `server/utils/config.ts` validates env with Zod at boot.

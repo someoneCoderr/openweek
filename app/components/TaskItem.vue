@@ -44,6 +44,9 @@ const rolledFrom = computed(() => {
 })
 const hasMeta = computed(() => !!props.task.timeOfDay || !!props.task.note || !!rolledFrom.value)
 
+// Both registrations live inside `onMounted` because that is what keeps the drag-and-drop
+// engine out of the server bundle — see the note in DayColumn.vue; hoisting either one out
+// 500s the built server on a module Nitro never traced.
 onMounted(() => {
   if (!row.value) return
   const stopDrag = taskDraggable(row.value, props.task.id, {
@@ -56,15 +59,14 @@ onMounted(() => {
       week.draggingId = null
     },
   })
-  onUnmounted(stopDrag)
-})
-
-// A row on a day that has gone still drags out, but nothing drops onto it — the whole column
-// is closed to new tasks. Re-registered when the date turns over, which is the moment a row
-// that took drops all evening stops being allowed to.
-watchPostEffect((onCleanup) => {
-  if (!row.value || week.isPastContainer(props.container)) return
-  onCleanup(taskDropTarget(row.value, props.task.id, props.container, e => (edge.value = e)))
+  // A row on a day that has gone still drags out, but nothing drops onto it — the whole
+  // column is closed to new tasks. An effect, so a row that took drops all evening stops
+  // being allowed to the moment the date turns over.
+  const stopDrop = watchEffect((onCleanup) => {
+    if (!row.value || week.isPastContainer(props.container)) return
+    onCleanup(taskDropTarget(row.value, props.task.id, props.container, e => (edge.value = e)))
+  })
+  onUnmounted(() => { stopDrag(); stopDrop() })
 })
 </script>
 

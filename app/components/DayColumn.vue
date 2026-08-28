@@ -34,11 +34,26 @@ const isPast = computed(() => isPastDate(props.date, today.value))
 const { visibleTasks, hasFold, isOpen: foldOpen, label: foldLabel, toggle: toggleFold }
   = useDoneFold(container, () => props.tasks)
 
-// Re-registered rather than wired up once: today's column becomes a past one when the date
-// turns over, and a past day takes no drops.
-watchPostEffect((onCleanup) => {
-  if (!col.value || isPast.value) return
-  onCleanup(containerDropTarget(col.value, container.value, a => (dropAtEnd.value = a)))
+/**
+ * The drop target has to be registered from inside `onMounted`, and stay there.
+ *
+ * Nuxt strips `onMounted` out of the server build, which is the only thing keeping the
+ * drag-and-drop engine out of the SSR bundle. Hoisted to setup it gets bundled, and
+ * @atlaskit's entry points are stub directories rather than an `exports` map, which Nitro's
+ * dependency trace does not copy — so the built server 500s on "Cannot find module
+ * …/adapter/element-adapter". Invisible in dev *and* in a local `node .output/server`, which
+ * still resolves it from the project's own node_modules; only the container has nothing to
+ * fall back to.
+ *
+ * An effect rather than a one-off call, so the target goes away when the date turns over and
+ * this column becomes a past day, which takes no drops.
+ */
+onMounted(() => {
+  const stop = watchEffect((onCleanup) => {
+    if (!col.value || isPast.value) return
+    onCleanup(containerDropTarget(col.value, container.value, a => (dropAtEnd.value = a)))
+  })
+  onUnmounted(stop)
 })
 </script>
 

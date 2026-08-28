@@ -8,7 +8,7 @@
     "pnpm": "^10"
   },
   "scripts": {
-    "build": "nuxt build",
+    "build": "nuxt build && node scripts/check-server-bundle.mjs",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",

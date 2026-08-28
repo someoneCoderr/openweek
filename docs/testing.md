@@ -75,6 +75,19 @@ tab is simply looked at again.
 Still to cover: DnD reorder within a day and **move across days** with **both mouse and keyboard**; connect a
 public iCal feed and see events land; convert an event to a task.
 
+### The built server (what dev cannot show you)
+
+`pnpm dev` never produces a Nitro bundle, and a local `node .output/server/index.mjs` still resolves imports
+from the project's own `node_modules` — so a browser-only package that leaks into the SSR bundle looks fine
+in both and only fails inside the container, where nothing sits above `.output`. That is how
+`@atlaskit/pragmatic-drag-and-drop` reached production as a 500 on the week page: its entry points are stub
+directories rather than an `exports` map, and Nitro's dependency trace does not copy them.
+
+`pnpm build` now ends in `scripts/check-server-bundle.mjs`, which fails the build if those packages appear in
+`.output/server/chunks` — including inside `docker build`, so the image cannot be produced broken. To check a
+real container end to end, run the image against a throwaway Postgres and load `/`, not just `/login`: an
+unauthenticated request redirects before the page renders and will pass either way.
+
 ## Fixtures & helpers
 - ICS fixtures under `test/fixtures/ics/` (recurring weekday event, all-day, cancelled instance, tz-spanning).
 - A `withTestDb()` helper that migrates a fresh schema and truncates between tests.
