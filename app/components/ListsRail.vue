@@ -146,11 +146,11 @@ function onKey(e: KeyboardEvent) {
       </OwButton>
     </div>
 
-    <!-- One card per row on narrow screens. On the grid, cards hold a minimum width and the
-         rail scrolls sideways once they no longer fit, rather than squeezing to nothing —
-         and vertically too, once the handle has given it a height of its own. -->
+    <!-- Cards fill each row while they have their useful minimum width, then wrap into the
+         next row automatically. There is no separate row/column mode: the available width
+         decides the arrangement, and a sized rail scrolls vertically when rows overflow. -->
     <div
-      class="grid grid-cols-1 items-start gap-2.5 px-4 lg:min-h-0 lg:flex-1 lg:auto-cols-[minmax(var(--ow-list-min),1fr)] lg:grid-flow-col lg:grid-cols-none lg:overflow-auto lg:pb-1"
+      class="ow-lists-grid grid min-h-0 items-start gap-2.5 overflow-auto px-4 pb-1 lg:flex-1"
       style="--ow-list-min: 264px"
     >
       <ListCard
@@ -164,6 +164,10 @@ function onKey(e: KeyboardEvent) {
 </template>
 
 <style scoped>
+.ow-lists-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--ow-list-min)), 1fr));
+}
+
 .ow-grip:hover span:first-child,
 .ow-grip:focus-visible span:first-child {
   background: var(--ow-muted);

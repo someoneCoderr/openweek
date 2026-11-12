@@ -156,10 +156,12 @@ a small inline script that flips to Ink before first paint.
 
 ## Responsive
 
-- **≥1024px** — the full-bleed seven-column grid with the lists rail beneath. The rail keeps a
-  minimum card width and scrolls sideways rather than squeezing when there are many lists.
+- **≥1024px** — the full-bleed seven-column grid with the lists rail beneath. List cards fill
+  each row at a useful minimum width and automatically wrap into further rows; a resized rail
+  scrolls vertically when those rows exceed its height.
 - **<1024px** — `MobileWeek`: a day strip that pans the week (with an open-task pip per day), one day
-  filling the screen, and a bottom nav. The rail stacks underneath, one card per row.
+  filling the screen, and a bottom nav. The same auto-fitting list grid sits underneath and
+  naturally becomes one column on narrow screens.
 
 ## Related docs
 

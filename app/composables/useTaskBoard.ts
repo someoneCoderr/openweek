@@ -105,7 +105,10 @@ export function listDropTarget(el: HTMLElement, listId: string, onEdge: (edge: E
   return dropTargetForElements({
     element: el,
     canDrop: ({ source }) => source.data.type === 'list' && source.data.listId !== listId,
-    getData: ({ input, element }) => attachClosestEdge({ listId }, { input, element, allowedEdges: ['left', 'right'] }),
+    getData: ({ input, element }) => attachClosestEdge(
+      { listId },
+      { input, element, allowedEdges: ['top', 'right', 'bottom', 'left'] },
+    ),
     ...edgeCallbacks(onEdge),
   })
 }
@@ -119,7 +122,7 @@ export function listBoardMonitor(onDrop: (info: { listId: string, overListId: st
       onDrop({
         listId: source.data.listId as string,
         overListId: target.data.listId as string,
-        after: extractClosestEdge(target.data) === 'right',
+        after: ['right', 'bottom'].includes(extractClosestEdge(target.data) ?? ''),
       })
     },
   })

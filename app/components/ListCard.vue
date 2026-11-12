@@ -22,7 +22,7 @@ const menuOpen = ref(false)
 const confirmingDelete = ref(false)
 /** True while a dragged task is over the card itself rather than one of its rows. */
 const dropAtEnd = ref(false)
-/** Which side of this card a dragged *list* would land on. */
+/** Which grid edge of this card a dragged *list* would land on. */
 const listEdge = ref<Edge | null>(null)
 const draggingCard = ref(false)
 const renaming = ref(false)
@@ -81,12 +81,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="root" class="flex items-stretch gap-1.5">
-    <div v-if="listEdge === 'left'" class="w-[3px] flex-none rounded-sm bg-ow-accent" aria-hidden="true" />
+  <div ref="root" class="relative min-w-0">
+    <div
+      v-if="listEdge"
+      class="ow-list-drop-edge"
+      :class="`ow-list-drop-edge--${listEdge}`"
+      aria-hidden="true"
+    />
 
     <div
       ref="card"
-      class="flex min-h-[176px] flex-1 flex-col rounded-xl border border-ow-border bg-ow-surface px-2.5 pb-[9px] pt-[11px] transition-opacity"
+      class="flex min-h-[176px] w-full flex-col rounded-xl border border-ow-border bg-ow-surface px-2.5 pb-[9px] pt-[11px] transition-opacity"
       :class="draggingCard && 'opacity-45'"
     >
       <!-- the header doubles as the drag handle for reordering the rail -->
@@ -204,7 +209,35 @@ onMounted(() => {
 
       <TaskComposer :container="container" />
     </div>
-
-    <div v-if="listEdge === 'right'" class="w-[3px] flex-none rounded-sm bg-ow-accent" aria-hidden="true" />
   </div>
 </template>
+
+<style scoped>
+.ow-list-drop-edge {
+  position: absolute;
+  z-index: 10;
+  border-radius: 2px;
+  background: var(--ow-accent);
+  pointer-events: none;
+}
+
+.ow-list-drop-edge--top,
+.ow-list-drop-edge--bottom {
+  right: 4px;
+  left: 4px;
+  height: 3px;
+}
+
+.ow-list-drop-edge--top { top: -6px; }
+.ow-list-drop-edge--bottom { bottom: -6px; }
+
+.ow-list-drop-edge--left,
+.ow-list-drop-edge--right {
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+}
+
+.ow-list-drop-edge--left { left: -6px; }
+.ow-list-drop-edge--right { right: -6px; }
+</style>

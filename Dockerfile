@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+
 
 # ---- build stage ----
 FROM node:24-alpine AS build
